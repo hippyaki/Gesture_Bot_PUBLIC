@@ -3,9 +3,6 @@ import mediapipe as mp
 import time
 import math
 from gest_det import Gest_det
-import requests
-
-url = "http://192.168.29.203/asasasasa"
 
 class handDetector():
     def __init__(self, mode = False, maxHands = 1, detectionCon = 0.6, trackCon = 0.3):
@@ -25,10 +22,10 @@ class handDetector():
         # print(results.multi_hand_landmarks)
         
 
-        #if self.results.multi_hand_landmarks:
-            #for handLms in self.results.multi_hand_landmarks:
-                #if draw:
-                    #self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
+        if self.results.multi_hand_landmarks:
+            for handLms in self.results.multi_hand_landmarks:
+                if draw:
+                    self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
         return img
 
     def findPosition(self, img, handNo = 0, draw = True):
@@ -42,7 +39,7 @@ class handDetector():
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 lmlist.append([id, cx, cy])
                 if draw:
-                    cv2.circle(img, (cx, cy), 3, (204, 74, 88), 2)
+                    cv2.circle(img, (cx, cy), 7, (255, 0, 255), cv2.FILLED)
                     #print(cx, ",", cy)
         return lmlist
     def get_vals(self,w,h):
@@ -78,17 +75,12 @@ def main():
     cTime = 0
     a = 0
     cap = cv2.VideoCapture(0)
+    
+    overlay = cv2.imread('dice.png')
 
     detector = handDetector()
 
     print("Press ESC on frame to exit")
-
-    L = False
-    F = False
-    S = False
-    B = False
-    R = False
-    O = False
     
 
 
@@ -100,84 +92,24 @@ def main():
         
         img = cv2.flip(img,1)
         img = detector.findHands(img)
-        c=detector.gest.main()
 
         detector.get_vals(img.shape[0],img.shape[1])
         k = cv2.waitKey(10)
         if k == 32: #SPACEBAR to start detection
             detector.calibration()
             print(detector.gest.thumb,detector.gest.mid)
-        
+        c=detector.gest.main()
         if(c!=None):
-            #print(c)
-            if c == "left":
-                if L == False:
-                    print(c)
-                    response = requests.request("GET", url + "/left")
-                    L = True
-                    F = False
-                    S = False
-                    B = False
-                    R = False
-                    O = False
-                    #print(response)
+            print(c)
 
-            elif c == "right":
-                if R == False:
-                    print(c)
-                    response = requests.request("GET", url + "/right")
-                    L = False
-                    F = False
-                    S = False
-                    B = False
-                    R = True
-                    O = False
-                
-            elif c == "forward":
-                if F == False:
-                    print(c)
-                    response = requests.request("GET", url + "/forward")
-                    L = False
-                    F = True
-                    S = False
-                    B = False
-                    R = False
-                    O = False
-                
-            elif c == "stop":
-                if S == False:
-                    print(c)
-                    response = requests.request("GET", url + "/stop")
-                    L = False
-                    F = False
-                    S = True
-                    B = False
-                    R = False
-                    O = False
-                
-            elif c == "reverse":
-                if B == False:
-                    print(c)
-                    response = requests.request("GET", url + "/backward")
-                    L = False
-                    F = False
-                    S = False
-                    B = True
-                    R = False
-                    O = False 
-
-            elif c == "servo":
-                if O == False:
-                    print(c)
-                    response = requests.request("GET", url + "/open")
-                    L = False
-                    F = False
-                    S = False
-                    B = False
-                    R = False
-                    O = True           
+        a = a + 1
+        #if a%13 == 0:
+        	#print(img)
+        	#time.sleep(0.5)
         
         lmlist = detector.findPosition(img)
+#        if len(lmlist) != 0:
+#           print(lmlist[4])
         
         cTime = time.time()
         fps = 1 / (cTime - pTime)
@@ -185,9 +117,8 @@ def main():
 
         #cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
         cv2.putText(img, "Fist - Stop  |  Straight - Forward  |  TiltRight - Right  |  TiltLeft - Left", (10, 30), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 255), 1)
-        cv2.putText(img, "ThumbOut - Servo  |  IndexOut - Reverse", (146, 60), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 255), 1)
 
-        cv2.imshow("Gesture Remote", img)
+        cv2.imshow("Image", img)
 
         if k == 27:  # press ESC to exit
             break

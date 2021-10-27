@@ -5,19 +5,19 @@ class Gest_det():
         self.fing_ang=fing
         self.tres_ang=tres_ang
         self.dist_c=1-dist_c
-        self.angle=0
-        self.im_ang=0
-        self.ti_ang=0
-        self.ini_thumb=0
-        self.ini_mid=0
-        self.ini_in=0
-        self.cur_mid=0
-        self.thumb=0
-        self.mid=0
-        self.wrist=0
-        self.index=0
-        self.indexMCP=0
-        self.thumbCMC=0
+        self.angle=None
+        self.im_ang=None
+        self.ti_ang=None
+        self.ini_thumb=None
+        self.ini_mid=None
+        self.ini_in=None
+        self.cur_mid=None
+        self.thumb=None
+        self.mid=None
+        self.wrist=None
+        self.index=None
+        self.indexMCP=None
+        self.thumbCMC=None
         self.calibrated=False
 
     def distance(self,x1,y1,x2,y2):
@@ -53,7 +53,7 @@ class Gest_det():
             return(True)
         return(False)
     def main(self):
-        if(self.wrist!=0 and self.calibrated):
+        if(self.wrist!=None and self.calibrated):
             if(self.isOpen() and not self.isFist() and self.isStrt()):
                 return("servo")
             if(not self.isThumb() and self.isFist()):#stop
@@ -66,10 +66,7 @@ class Gest_det():
                 return("left")
             elif(self.isRight()):#right
                 return("right")
-            else:
-                return("stop")
-        else:
-            return("stop")    
+            
         
         
     
